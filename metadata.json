@@ -1,0 +1,8 @@
+{
+  "name": "지방 자치와 시민참여",
+  "description": "지방 자치 전체",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
