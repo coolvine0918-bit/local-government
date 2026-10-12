@@ -1,13 +1,11 @@
 import React from 'react';
 import { StudentSubmission } from '../types';
-import { Award, CheckCircle2, XCircle, RotateCcw, Eye, Printer, Send, BookmarkCheck, Lightbulb } from 'lucide-react';
+import { Award, CheckCircle2, XCircle, RotateCcw, Printer, Send, BookmarkCheck, Lightbulb } from 'lucide-react';
 
 interface ResultModalProps {
   submission: StudentSubmission;
   onClose: () => void;
   onRetry: () => void;
-  onToggleShowAnswers: () => void;
-  showingAnswers: boolean;
   sheetSubmitStatus: {
     status: 'idle' | 'sending' | 'success' | 'error';
     message: string;
@@ -18,8 +16,6 @@ export const ResultModal: React.FC<ResultModalProps> = ({
   submission,
   onClose,
   onRetry,
-  onToggleShowAnswers,
-  showingAnswers,
   sheetSubmitStatus,
 }) => {
   const isPerfect = submission.score === 100;
@@ -190,18 +186,8 @@ export const ResultModal: React.FC<ResultModalProps> = ({
         <div className="p-4 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => {
-                onToggleShowAnswers();
-                onClose();
-              }}
-              className="px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition flex items-center gap-1.5 cursor-pointer"
-            >
-              <Eye className="w-4 h-4 text-blue-600" />
-              <span>{showingAnswers ? '내 연결선 보기' : '퀴즈 화면에서 정답 선 확인하기'}</span>
-            </button>
-            <button
               onClick={handlePrint}
-              className="px-3 py-2 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition hidden sm:flex items-center gap-1 cursor-pointer"
+              className="px-3.5 py-2 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition hidden sm:flex items-center gap-1 cursor-pointer"
             >
               <Printer className="w-4 h-4" />
               <span>성적표 인쇄</span>

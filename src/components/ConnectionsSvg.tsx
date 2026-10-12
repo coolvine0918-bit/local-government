@@ -8,7 +8,6 @@ interface ConnectionsSvgProps {
   roleNodes: RoleNode[];
   isTwoColumnMode?: boolean;
   onRemoveConnection: (caseId: number, type: 'actor' | 'role') => void;
-  showCorrectAnswers?: boolean;
   draggingState?: {
     fromDotId: string;
     startPoint: { x: number; y: number };
@@ -29,7 +28,6 @@ export const ConnectionsSvg: React.FC<ConnectionsSvgProps> = ({
   roleNodes,
   isTwoColumnMode = true,
   onRemoveConnection,
-  showCorrectAnswers = false,
   draggingState,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -109,7 +107,7 @@ export const ConnectionsSvg: React.FC<ConnectionsSvgProps> = ({
   useEffect(() => {
     const timer = setTimeout(updatePositions, 60);
     return () => clearTimeout(timer);
-  }, [connections, showCorrectAnswers, isTwoColumnMode, items, updatePositions]);
+  }, [connections, isTwoColumnMode, items, updatePositions]);
 
   const renderBezier = (
     p1: Point,
@@ -202,130 +200,67 @@ export const ConnectionsSvg: React.FC<ConnectionsSvgProps> = ({
       </defs>
 
       {/* Render Student Connections */}
-      {!showCorrectAnswers &&
-        items.map((item) => {
-          const conn = connections[item.id];
-          if (!conn) return null;
+      {items.map((item) => {
+        const conn = connections[item.id];
+        if (!conn) return null;
 
-          const elements: React.ReactNode[] = [];
-          const casePt = positions[`case-dot-${item.id}`];
+        const elements: React.ReactNode[] = [];
+        const casePt = positions[`case-dot-${item.id}`];
 
-          if (isTwoColumnMode) {
-            // Direct 2-tier: Left (Term) -> Right (Role/Description)
-            if (conn.roleNodeId && casePt) {
-              const rolePt = positions[`role-dot-${conn.roleNodeId}`];
-              if (rolePt) {
-                elements.push(
-                  renderBezier(
-                    casePt,
-                    rolePt,
-                    item.color,
-                    `direct-${item.id}-to-role-${conn.roleNodeId}`,
-                    () => onRemoveConnection(item.id, 'role')
-                  )
-                );
-              }
+        if (isTwoColumnMode) {
+          // Direct 2-tier: Left (Term) -> Right (Role/Description)
+          if (conn.roleNodeId && casePt) {
+            const rolePt = positions[`role-dot-${conn.roleNodeId}`];
+            if (rolePt) {
+              elements.push(
+                renderBezier(
+                  casePt,
+                  rolePt,
+                  item.color,
+                  `direct-${item.id}-to-role-${conn.roleNodeId}`,
+                  () => onRemoveConnection(item.id, 'role')
+                )
+              );
             }
-          } else {
-            // 3-tier: Left -> Middle -> Right
-            // 1. Case -> Actor Line
-            if (conn.actorNodeId && casePt) {
-              const actorLeftPt = positions[`actor-dot-left-${conn.actorNodeId}`];
-              if (actorLeftPt) {
-                elements.push(
-                  renderBezier(
-                    casePt,
-                    actorLeftPt,
-                    item.color,
-                    `case-${item.id}-to-actor-${conn.actorNodeId}`,
-                    () => onRemoveConnection(item.id, 'actor')
-                  )
-                );
-              }
-            }
-
-            // 2. Actor -> Role Line
-            if (conn.actorNodeId && conn.roleNodeId) {
-              const actorRightPt = positions[`actor-dot-right-${conn.actorNodeId}`];
-              const rolePt = positions[`role-dot-${conn.roleNodeId}`];
-              if (actorRightPt && rolePt) {
-                elements.push(
-                  renderBezier(
-                    actorRightPt,
-                    rolePt,
-                    item.color,
-                    `actor-${conn.actorNodeId}-to-role-${conn.roleNodeId}`,
-                    () => onRemoveConnection(item.id, 'role')
-                  )
-                );
-              }
+          }
+        } else {
+          // 3-tier: Left -> Middle -> Right
+          // 1. Case -> Actor Line
+          if (conn.actorNodeId && casePt) {
+            const actorLeftPt = positions[`actor-dot-left-${conn.actorNodeId}`];
+            if (actorLeftPt) {
+              elements.push(
+                renderBezier(
+                  casePt,
+                  actorLeftPt,
+                  item.color,
+                  `case-${item.id}-to-actor-${conn.actorNodeId}`,
+                  () => onRemoveConnection(item.id, 'actor')
+                )
+              );
             }
           }
 
-          return elements;
-        })}
-
-      {/* Render Correct Answer Guide Lines if toggled */}
-      {showCorrectAnswers &&
-        items.map((item) => {
-          const matchingRole = roleNodes.find((r) => r.targetCaseId === item.id);
-          const casePt = positions[`case-dot-${item.id}`];
-          const elements: React.ReactNode[] = [];
-
-          if (isTwoColumnMode) {
-            if (matchingRole && casePt) {
-              const rolePt = positions[`role-dot-${matchingRole.id}`];
-              if (rolePt) {
-                elements.push(
-                  renderBezier(
-                    casePt,
-                    rolePt,
-                    item.color,
-                    `correct-direct-${item.id}`,
-                    undefined,
-                    false
-                  )
-                );
-              }
-            }
-          } else {
-            const matchingActor = actorNodes.find(
-              (a) => a.targetItemId === item.id || a.text === item.term
-            );
-            if (matchingActor && casePt) {
-              const actorLeftPt = positions[`actor-dot-left-${matchingActor.id}`];
-              const actorRightPt = positions[`actor-dot-right-${matchingActor.id}`];
-              if (actorLeftPt) {
-                elements.push(
-                  renderBezier(
-                    casePt,
-                    actorLeftPt,
-                    item.color,
-                    `correct-case-${item.id}`,
-                    undefined,
-                    false
-                  )
-                );
-              }
-              if (matchingRole && actorRightPt) {
-                const rolePt = positions[`role-dot-${matchingRole.id}`];
-                if (rolePt) {
-                  elements.push(
-                    renderBezier(
-                      actorRightPt,
-                      rolePt,
-                      item.color,
-                      `correct-role-${item.id}`,
-                      undefined,
-                      false
-                    )
-                  );
-                }
-              }
+          // 2. Actor -> Role Line
+          if (conn.actorNodeId && conn.roleNodeId) {
+            const actorRightPt = positions[`actor-dot-right-${conn.actorNodeId}`];
+            const rolePt = positions[`role-dot-${conn.roleNodeId}`];
+            if (actorRightPt && rolePt) {
+              elements.push(
+                renderBezier(
+                  actorRightPt,
+                  rolePt,
+                  item.color,
+                  `actor-${conn.actorNodeId}-to-role-${conn.roleNodeId}`,
+                  () => onRemoveConnection(item.id, 'role')
+                )
+              );
             }
           }
-          return elements;
-        })}
+        }
+
+        return elements;
+      })}
 
       {/* Dragging Rubberband Line */}
       {draggingState && (

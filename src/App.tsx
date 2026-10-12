@@ -4,7 +4,6 @@ import {
   Volume2,
   VolumeX,
   CheckCircle,
-  Eye,
   Info,
   Award,
   BookOpen,
@@ -76,8 +75,6 @@ export default function App() {
   // Sound toggle
   const [soundOn, setSoundOn] = useState(true);
 
-  // Answer display toggle (review mode)
-  const [showCorrectAnswers, setShowCorrectAnswers] = useState(false);
 
   // Modals
   const [isResultOpen, setIsResultOpen] = useState(false);
@@ -263,7 +260,6 @@ export default function App() {
       });
       setConnections(reset);
       setActiveSelection(null);
-      setShowCorrectAnswers(false);
     }
   };
 
@@ -669,20 +665,13 @@ export default function App() {
                   진행도: {completedCount} / {currentItems.length}개 완료
                 </span>
 
-                  {showCorrectAnswers && (
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 flex items-center gap-1">
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>정답 선 확인 중</span>
-                    </span>
-                  )}
-
-                  <button
-                    onClick={handleResetAll}
-                    className="text-xs text-slate-500 hover:text-red-600 font-medium underline transition cursor-pointer"
-                  >
-                    선 모두 지우기
-                  </button>
-                </div>
+                <button
+                  onClick={handleResetAll}
+                  className="text-xs text-slate-500 hover:text-red-600 font-medium underline transition cursor-pointer"
+                >
+                  선 모두 지우기
+                </button>
+              </div>
               </div>
             </div>
 
@@ -715,7 +704,6 @@ export default function App() {
               roleNodes={currentRoleNodes}
               isTwoColumnMode={isTwoColumnMode}
               onRemoveConnection={handleRemoveConnection}
-              showCorrectAnswers={showCorrectAnswers}
               draggingState={draggingState}
             />
 
@@ -1119,18 +1107,6 @@ export default function App() {
 
               <div className="flex items-center gap-2.5 w-full sm:w-auto">
                 <button
-                  onClick={() => setShowCorrectAnswers(!showCorrectAnswers)}
-                  className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-1.5 border cursor-pointer ${
-                    showCorrectAnswers
-                      ? 'bg-amber-50 border-amber-300 text-amber-900 shadow-xs'
-                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                  }`}
-                >
-                  <Eye className="w-4 h-4 text-amber-600" />
-                  <span>{showCorrectAnswers ? '정답 선 끄기' : '정답 선 미리보기'}</span>
-                </button>
-
-                <button
                   onClick={handleGradeAndSubmit}
                   className="flex-1 sm:flex-initial px-6 py-2.5 rounded-xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                 >
@@ -1153,8 +1129,6 @@ export default function App() {
             setIsResultOpen(false);
             handleResetAll();
           }}
-          onToggleShowAnswers={() => setShowCorrectAnswers(!showCorrectAnswers)}
-          showingAnswers={showCorrectAnswers}
           sheetSubmitStatus={sheetSubmitStatus}
         />
       )}
